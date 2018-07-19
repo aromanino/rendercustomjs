@@ -1,171 +1,89 @@
-codified_data
+rendercustomjs
 ===========
 
-# Simple and fast NodeJS codified caching on redis based on package cache-manager-redis-store.
+# A simple middleware to dinamically render javascript files starting from ejs templates
 
-A simple caching module on redis that has `set`, `get` and `delete` methods and works 
-as a codified cache storage.
-Keys can have a timeout (`ttl`) after which they expire and are deleted from the cache.
-All keys are stored in a redis instance. 
-This package also get other helper function like `keys`, `flushAll`, `getTtl`
+A simple middleware based on ejs engine template that combines data and ejs template to produce dinamically javascript.
+This lets you to create and render javascript file created with a dinamically content.
 
-
-[![NPM](https://nodei.co/npm/codified_data.png?downloads=true&downloadRank=true&stars=true)![NPM](https://nodei.co/npm-dl/codified_data.png?months=6&height=3)](https://nodei.co/npm/codified_data/)
+[![NPM](https://nodei.co/npm/rendercustomjs.png?downloads=true&downloadRank=true&stars=true)![NPM](https://nodei.co/npm-dl/rendercustomjs.png?months=6&height=3)](https://nodei.co/npm/rendercustomjs/)
 
 # Install
 
 ```bash
-  npm install codified_data --save
+  npm install rendercustomjs --save
 ```
 
-Or just require the `index.js` file to get the superclass
+# Usage:
 
-# Examples:
-
-## Initialize (INIT):
-
-
-`setup([options])`
-
-Sets and Init redis connection options. It is possible to define a  `host`, `port`, key `ttl` (in ms), `password` and `db` .
+## require it:
 
 ```js
-const codifiedData = require( "codified_data" );
-codifiedData.setup();
-//OR
-codifiedData.setup({ttl:0});
-```
-### Options
-
-- `ttl`: *(default: `0`)* the standard ttl as number in seconds for every generated cache element.
-`0` = unlimited
-- `clear`: *(default: `false`)* if true flush all key and clear db.
-- `host`:*(default: `localhost`)* the redis host.
-- `port`:*(default: `6379`)* the redis port
-- `db`:*(default: `0`)* the redis database
-- `auth_pass`:*(default: `void`)* the redis password
-
-
-## Store a key (SET):
-
-`set(value, [ options ], callback )`
-
-Sets a `value` to store in cache and if no error return codified key of this stored value. 
-It is possible to define a custom  `ttl` (in seconds) for this key.
-callback  has two parameters `err, codifiedKey`. If error `err` contains error message otherwise `codifiedKey`
-contains the codified key associated to a new value stored.
-
-```js
-obj = { my: "Special", variable: 42 };
-codifiedData.set(obj, function( err, key ){
-  if( !err && key ){
-      // print a string like:  45745c60-7b1a-11e8-9c9c-2d42b21b1a3e
-      console.log( key );
-  }
-});
+const rendercustomjs = require( "rendercustomjs" );
 ```
 
-### Options
-
-- `ttl`: The standard ttl as number in seconds for current cache element. It overwrite global `ttl` value
-
-> Note: If the key expires based on it's `ttl` it will be deleted.
-
-## Retrieve a key (GET):
-
-`get( key,[options] [callback] )`
-
-Gets a saved value from the cache.
-Returns a `undefined || null` if not found or expired.
-If the value was found it returns the `value` associated to codified key.
+## Use it as middleware in your route:
 
 ```js
+const rendercustomjs = require( "rendercustomjs" );
 
-//store a value 
-let obj = { my: "Special", variable: 42 };
-let storeKey;
-codifiedData.set(obj, function( err, key ){
-  if( !err && key ){
-      // print a string like:  45745c60-7b1a-11e8-9c9c-2d42b21b1a3e
-      console.log( key );
-      storeKey=key;
-  }
+// your standard routes
+router.get('/',function(req,res,next){
+    res.render("htmlPage",{text:"Hello Word!!"});
 });
 
-
-
-codifiedData.get(storeKey,{delete:true}, function( err, value ){
-  if( !err && value ){
-      // print { my: "Special", variable: 42 }
-      console.log( value );
-  }
+// you route to serve javascript dinamically
+router.get('/js',rendercustomjs,function(req,res,next){
+    var customId="YOUR_LOGIC";
+    res.render("jsPage",{url:"http://localhost:3000/" + customID });
 });
 
 ```
 
-### Options
 
-- `delete`: if true delete the key from the cache after reading it.
+## How to create your dinamically javascript file:
 
-## Delete a key (DEL):
+### Step 1:  Create your javascript file as ejs file:
 
-`deleteKey( key, [callback] )`
+Go to in your project directory where you want to save your javascript files. I create it in views folder of my express project.
+```bash
+// cd your_view_javascript_Folder
+cd myproject/views  
+```
 
-Delete a key from cache.
-
+Create a ejs file where write your javascript code.
+```bash
+vim jsPage.ejs  
+```
+Insert in your file the `<script>` and  `</script>` tag as bellow: 
 ```js
-codifiedData.deleteKey( "45745c60-7b1a-11e8-9c9c-2d42b21b1a3e", function( err, result ){
-  if( !err ){
-    console.log( "Deleted" );
-    // ... do something ...
-  }
+<script type="text/javascript">
+  
+  // you logic must be placed here
+  
+</script>
+
+```
+Your code must be put inside `<script>` and  `</script>` tag. 
+
+Now  insert your dinamically javascript code using ejs tags as bellow:
+```js
+<script type="text/javascript">
+ 
+ jQuery.ajax({
+        url: <%= url %>,
+        type: "GET",
+        success: function(data, textStatus, xhr){
+            console.log(data);
+        },
+        error: function(xhr, status){
+            console.log(xhr);
+        }
 });
+
+</script>
 ```
 
-## Get All Keys (KEYS):
-
-`keys([callback] )`
-
-Get an array of all not expired keys
-
-```js
-codifiedData.keys(function( err, keys ){
-  if( !err ){
-    console.log( keys );
-    // ["0df05ef0-8917-11e8-94d7-238224a78e45" ]
-  }
-});
-```
-
-## Flush all data (flushAll):
-
-`flushAll([callback])`
-
-Flush all data.
-
-```js
-codifiedData.flushAll(function( err, result ){
-   if( !err ){
-         console.log( result );
-         // "OK"
-       }
- });  
-```
-
-## Gwt key ttl (getTtl):
-
-`getTtl(key,[callback])`
-
-Get the remaining time to live of specified key 
-
-```js
-codifiedData.getTtl("45745c60-7b1a-11e8-9c9c-2d42b21b1a3e",function( err, result ){
-   if( !err ){
-         console.log( result );
-         // "ttl": 42
-       }
- });  
-```
 
 License - "MIT License"
 -----------------------
