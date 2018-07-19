@@ -1,0 +1,35 @@
+{
+  "name": "rendercustomjs",
+  "version": "0.0.1",
+  "description": "A simple middleware to dinamically render javascript files starting from ejs templates",
+  "main": "index.js",
+  "dependencies": {
+    "propertiesmanager": "^2.0.3"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "npm test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aromanino/rendercustomjs.git"
+  },
+  "keywords": [
+    "template",
+    "render",
+    "ejs",
+    "javascript",
+    "engine",
+    "dinamically",
+    "serve",
+    "middleware",
+    "rensìdering",
+    "express"
+  ],
+  "author": "Alessandro Romanino",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/aromanino/rendercustomjs/issues"
+  },
+  "homepage": "https://github.com/aromanino/rendercustomjs#readme"
+}
