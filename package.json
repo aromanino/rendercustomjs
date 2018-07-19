@@ -1,6 +1,6 @@
 {
   "name": "rendercustomjs",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A simple middleware to dinamically render javascript files starting from ejs templates",
   "main": "index.js",
   "dependencies": {
