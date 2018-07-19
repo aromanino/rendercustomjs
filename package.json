@@ -4,7 +4,8 @@
   "description": "A simple middleware to dinamically render javascript files starting from ejs templates",
   "main": "index.js",
   "dependencies": {
-    "propertiesmanager": "^2.0.3"
+    "propertiesmanager": "^2.0.3",
+    "responseinterceptor": "^1.1.2"
   },
   "devDependencies": {},
   "scripts": {
